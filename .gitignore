@@ -18,3 +18,5 @@ server.pid
 .project
 .settings/
 .DS_Store
+.vagrant/
+*.log

@@ -72,7 +72,7 @@ Vagrant.configure("2") do |config|
     apt-get update
     echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
     apt-get install -y oracle-java8-installer
-    apt-get install -y scala golang
+    apt-get install -y scala golang zip
     pushd /tmp/
     wget https://github.com/sbt/sbt/releases/download/v1.1.1/sbt-1.1.1.tgz
     tar xvfz sbt-1.1.1.tgz -C /opt

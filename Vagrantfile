@@ -24,7 +24,8 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # NOTE: This will enable public access to the opened port
-  config.vm.network "forwarded_port", guest: 9000, host: 9000
+  config.vm.network "forwarded_port", guest: 9000, host: 9000, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 3000, host: 3000, host_ip: "127.0.0.1"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
@@ -71,22 +72,36 @@ Vagrant.configure("2") do |config|
     apt-get update
     echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
     apt-get install -y oracle-java8-installer
-    apt-get install -y scala
+    apt-get install -y scala golang
     pushd /tmp/
     wget https://github.com/sbt/sbt/releases/download/v1.1.1/sbt-1.1.1.tgz
-    tar xvfz sbt-1.1.1.tgz -C /opt    
+    tar xvfz sbt-1.1.1.tgz -C /opt
+    popd
+    pushd /opt
+    mkdir gitea
+    cd gitea
+    wget -O gitea https://dl.gitea.io/gitea/1.3.2/gitea-1.3.2-linux-amd64
+    chmod +x gitea
+    screen -dm -S gitea ./gitea web
+    popd
+    pushd /opt/gitpitch
+    screen -dm -S gitpitch /opt/sbt/bin/sbt run
+    popd
   SHELL
-
 
 
   config.vm.post_up_message = <<-MESSAGE
     All done!
     
-    To run gitptich
-      - vagrant ssh
-      - cd /opt/gitpitch
-      - /opt/sbt/bin/sbt run
+    gitea should now be running on http://localhost:3000.  Go ahead and visit that page.
+    The first time you will need to initialize it (select SQLite DB, but the rest of the
+    defaults are sensible in most cases). Once that's done, create a user and then a repo
+    with your PITCHME.md file.
 
-    If that works, gitpitch will be running on http://localhost:9000
+    gitpitch should now be running on http://localhost:9000.  Test it by visiting:
+    http://localhost:9000/YOUR_GITEA_USERNAME/YOUR_REPO
+
+    The first time you do this it may take a long time since some stuff needs to compile.
+
   MESSAGE
 end
